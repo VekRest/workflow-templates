@@ -201,9 +201,20 @@ jobs:
           # URL base
           API_BASE="https://api.github.com/orgs/$GH_OWNER/packages/maven/$PACKAGE_FULL"
   
-          # Obtém ID da versão
-          VERSION_ID=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions" \
-            | jq ".[] | select(.name==\"$TAG\") | .id")
+          RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions")
+
+          if echo "$RESPONSE" | jq -e 'has("message")' >/dev/null; then
+              ERROR_MSG=$(echo "$RESPONSE" | jq -r '.message')
+              if [[ "$ERROR_MSG" == "Package not found." ]]; then
+                  echo "✔️ Package $PACKAGE_FULL does not exist. Nothing to delete."
+                  exit 0
+              else
+                  echo "❌ Unexpected error fetching versions: $ERROR_MSG"
+                  exit 1
+              fi
+          fi
+
+          VERSION_ID=$(echo "$RESPONSE" | jq -r --arg TAG "$TAG" '.[] | select(.name==$TAG) | .id')
   
           if [ -z "$VERSION_ID" ]; then
             echo "✔️ No version with tag $TAG found. Nothing to delete."
@@ -255,9 +266,20 @@ jobs:
           # URL base
           API_BASE="https://api.github.com/orgs/$GH_OWNER/packages/maven/$PACKAGE_FULL"
   
-          # Obtém ID da versão
-          VERSION_ID=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions" \
-            | jq ".[] | select(.name==\"$TAG\") | .id")
+          RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions")
+
+          if echo "$RESPONSE" | jq -e 'has("message")' >/dev/null; then
+              ERROR_MSG=$(echo "$RESPONSE" | jq -r '.message')
+              if [[ "$ERROR_MSG" == "Package not found." ]]; then
+                  echo "✔️ Package $PACKAGE_FULL does not exist. Nothing to delete."
+                  exit 0
+              else
+                  echo "❌ Unexpected error fetching versions: $ERROR_MSG"
+                  exit 1
+              fi
+          fi
+
+          VERSION_ID=$(echo "$RESPONSE" | jq -r --arg TAG "$TAG" '.[] | select(.name==$TAG) | .id')
   
           if [ -z "$VERSION_ID" ]; then
             echo "✔️ No version with tag $TAG found. Nothing to delete."
@@ -309,9 +331,20 @@ jobs:
           # URL base
           API_BASE="https://api.github.com/orgs/$GH_OWNER/packages/maven/$PACKAGE_FULL"
   
-          # Obtém ID da versão
-          VERSION_ID=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions" \
-            | jq ".[] | select(.name==\"$TAG\") | .id")
+          RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions")
+
+          if echo "$RESPONSE" | jq -e 'has("message")' >/dev/null; then
+              ERROR_MSG=$(echo "$RESPONSE" | jq -r '.message')
+              if [[ "$ERROR_MSG" == "Package not found." ]]; then
+                  echo "✔️ Package $PACKAGE_FULL does not exist. Nothing to delete."
+                  exit 0
+              else
+                  echo "❌ Unexpected error fetching versions: $ERROR_MSG"
+                  exit 1
+              fi
+          fi
+
+          VERSION_ID=$(echo "$RESPONSE" | jq -r --arg TAG "$TAG" '.[] | select(.name==$TAG) | .id')
   
           if [ -z "$VERSION_ID" ]; then
             echo "✔️ No version with tag $TAG found. Nothing to delete."
