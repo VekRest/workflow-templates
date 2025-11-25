@@ -156,22 +156,23 @@ jobs:
           server-id: github
           settings-path: ${{ github.workspace }}
 
-      - name: Delete Existing Maven Package (if exists)
+      - name: Delete existing package version or whole package (if last version)
         env:
           GH_OWNER: ${{ github.repository_owner }}
-          GH_REPO: ${{ github.repository }}
-          GROUP: ${{ inputs.maven_group }}
-          ARTIFACT: ${{ inputs.maven_artifact }}
-          TOKEN: ${{ secrets.release_token }}
+          GH_TOKEN: ${{ secrets.release_token }}
           TAG: ${{ github.ref_name }}
+          PACKAGE_NAMESPACE: ${{ inputs.maven_group }}
+          PACKAGE_NAME: ${{ inputs.maven_artifact }}
         run: |
-          echo "Checking for package version: $TAG"
-          FULL="$GROUP.$ARTIFACT"
-          
+          echo "🔍 Checking for existing package version: $TAG"
+  
+          PACKAGE_FULL="$PACKAGE_NAMESPACE.$PACKAGE_NAME"
+  
+          # URL base
           API_BASE="https://api.github.com/orgs/$GH_OWNER/packages/maven/$PACKAGE_FULL"
   
           # Obtém ID da versão
-          VERSION_ID=$(curl -s -H "Authorization: Bearer $TOKEN" "$API_BASE/versions" \
+          VERSION_ID=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions" \
             | jq ".[] | select(.name==\"$TAG\") | .id")
   
           if [ -z "$VERSION_ID" ]; then
@@ -183,9 +184,9 @@ jobs:
   
           # Tenta deletar a versão e captura erro
           DELETE_RESPONSE=$(curl -s -o /tmp/delete_output.txt -w "%{http_code}" \
-          -X DELETE \
-          -H "Authorization: Bearer $TOKEN" \
-          "$API_BASE/versions/$VERSION_ID")
+            -X DELETE \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            "$API_BASE/versions/$VERSION_ID")
   
           if [ "$DELETE_RESPONSE" -eq 204 ]; then
             echo "✔️ Version deleted successfully."
@@ -196,11 +197,11 @@ jobs:
   
           if [[ "$ERROR_MSG" == *"You cannot delete the last version of a package"* ]]; then
             echo "⚠️ Cannot delete last version. Deleting entire package $PACKAGE_FULL..."
-            
+  
             curl -X DELETE \
-            -H "Authorization: Bearer $TOKEN" \
-            "$API_BASE"
-            
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "$API_BASE"
+  
             echo "✔️ Entire package deleted."
             exit 0
           fi
