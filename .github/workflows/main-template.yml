@@ -83,7 +83,7 @@ jobs:
     
     steps:
       - name: Analyze with SonarCloud
-      - uses: SonarSource/sonarcloud-github-action@v2.2.0
+        uses: SonarSource/sonarcloud-github-action@v2.2.0
         env:
           SONAR_TOKEN: ${{ secrets.sonar_token }}
         with:
@@ -143,7 +143,7 @@ jobs:
           password: ${{ secrets.dockerhub_token }}
 
       - name: Build with Maven (without tests)
-      - run: mvn clean install -DskipTests
+        run: mvn clean install -DskipTests
 
       - name: Build & Push DockerHub
         uses: docker/build-push-action@v6
