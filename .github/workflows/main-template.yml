@@ -198,7 +198,6 @@ jobs:
   
           PACKAGE_FULL="$PACKAGE_NAMESPACE.$PACKAGE_NAME"
   
-          # URL base
           API_BASE="https://api.github.com/orgs/$GH_OWNER/packages/maven/$PACKAGE_FULL"
   
           RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions")
@@ -223,7 +222,6 @@ jobs:
   
           echo "🗑️ Found version ID: $VERSION_ID. Trying to delete version..."
   
-          # Tenta deletar a versão e captura erro
           DELETE_RESPONSE=$(curl -s -o /tmp/delete_output.txt -w "%{http_code}" \
             -X DELETE \
             -H "Authorization: Bearer $GH_TOKEN" \
@@ -263,7 +261,6 @@ jobs:
   
           PACKAGE_FULL="$PACKAGE_NAMESPACE.$PACKAGE_NAME"
   
-          # URL base
           API_BASE="https://api.github.com/orgs/$GH_OWNER/packages/maven/$PACKAGE_FULL"
   
           RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions")
@@ -288,7 +285,6 @@ jobs:
   
           echo "🗑️ Found version ID: $VERSION_ID. Trying to delete version..."
   
-          # Tenta deletar a versão e captura erro
           DELETE_RESPONSE=$(curl -s -o /tmp/delete_output.txt -w "%{http_code}" \
             -X DELETE \
             -H "Authorization: Bearer $GH_TOKEN" \
@@ -328,7 +324,6 @@ jobs:
   
           PACKAGE_FULL="$PACKAGE_NAMESPACE.$PACKAGE_NAME"
   
-          # URL base
           API_BASE="https://api.github.com/orgs/$GH_OWNER/packages/maven/$PACKAGE_FULL"
   
           RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions")
@@ -353,7 +348,6 @@ jobs:
   
           echo "🗑️ Found version ID: $VERSION_ID. Trying to delete version..."
   
-          # Tenta deletar a versão e captura erro
           DELETE_RESPONSE=$(curl -s -o /tmp/delete_output.txt -w "%{http_code}" \
             -X DELETE \
             -H "Authorization: Bearer $GH_TOKEN" \
@@ -430,10 +424,23 @@ jobs:
         run: |
           PKG=$(echo "$IMAGE" | awk -F'/' '{print tolower($NF)}')
           API="https://api.github.com/orgs/$OWNER/packages/container/$PKG"
+      
           LIST=$(curl -s -H "Authorization: Bearer $TOKEN" "$API/versions")
-          VER=$(echo "$LIST" | jq ".[] | select(.metadata.container.tags[]?==\"$TAG\") | .id")
-          if [ -z "$VER" ]; then exit 0; fi
-          curl -X DELETE -H "Authorization: Bearer $TOKEN" "$API/versions/$VER"
+      
+          if ! echo "$LIST" | jq -e 'type == "array"' >/dev/null 2>&1; then
+            echo "Package not found. Skipping delete."
+            exit 0
+          fi
+      
+          VER=$(echo "$LIST" | jq -r ".[] | select(.metadata.container.tags[]? == \"$TAG\") | .id")
+      
+          if [ -z "$VER" ]; then
+            echo "Tag not found. Nothing to delete."
+            exit 0
+          fi
+      
+          echo "Deleting version ID: $VER"
+          curl -s -X DELETE -H "Authorization: Bearer $TOKEN" "$API/versions/$VER"
 
       - name: Build with Maven (without tests)
         run: mvn clean install -DskipTests
