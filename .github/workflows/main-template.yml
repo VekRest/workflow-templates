@@ -3,7 +3,7 @@ name: Reusable CI/CD Workflow Template
 on:
   workflow_call:
     inputs:
-      owner-type:
+      owner_type:
         required: false
         default: "orgs"
         type: string
@@ -197,7 +197,7 @@ jobs:
           TAG: ${{ github.ref_name }}
           PACKAGE_NAMESPACE: ${{ inputs.maven_group }}
           PACKAGE_NAME: ${{ inputs.maven_artifact }}
-          OWNER_TYPE: ${{ inputs.owner-type }}
+          OWNER_TYPE: ${{ inputs.owner_type }}
         run: |
           echo "🔍 Checking for existing package version: $TAG"
   
@@ -261,7 +261,7 @@ jobs:
           TAG: ${{ github.ref_name }}
           PACKAGE_NAMESPACE: ${{ inputs.maven_group }}
           PACKAGE_NAME: domain
-          OWNER_TYPE: ${{ inputs.owner-type }}
+          OWNER_TYPE: ${{ inputs.owner_type }}
         run: |
           echo "🔍 Checking for existing package version: $TAG"
   
@@ -325,7 +325,7 @@ jobs:
           TAG: ${{ github.ref_name }}
           PACKAGE_NAMESPACE: ${{ inputs.maven_group }}
           PACKAGE_NAME: spring
-          OWNER_TYPE: ${{ inputs.owner-type }}
+          OWNER_TYPE: ${{ inputs.owner_type }}
         run: |
           echo "🔍 Checking for existing package version: $TAG"
   
@@ -428,7 +428,7 @@ jobs:
           TOKEN: ${{ secrets.release_token }}
           IMAGE: ${{ env.IMAGE_NAME }}
           TAG: ${{ github.ref_name }}
-          OWNER_TYPE: ${{ inputs.owner-type }}
+          OWNER_TYPE: ${{ inputs.owner_type }}
         run: |
           PKG=$(echo "$IMAGE" | awk -F'/' '{print tolower($NF)}')
           API="https://api.github.com/$OWNER_TYPE/$OWNER/packages/container/$PKG"
