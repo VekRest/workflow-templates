@@ -4,11 +4,9 @@ on:
   workflow_call:
     inputs:
       owner-type:
-        description: "orgs or users"
         required: false
         default: "orgs"
         type: string
-        
       sonar_project_key:
         required: true
         type: string
