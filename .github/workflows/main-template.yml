@@ -4,9 +4,9 @@ on:
   workflow_call:
     inputs:
       owner-type:
-        description: "org ou user"
+        description: "orgs or users"
         required: false
-        default: "org"
+        default: "orgs"
         type: string
         
       sonar_project_key:
@@ -199,12 +199,13 @@ jobs:
           TAG: ${{ github.ref_name }}
           PACKAGE_NAMESPACE: ${{ inputs.maven_group }}
           PACKAGE_NAME: ${{ inputs.maven_artifact }}
+          OWNER_TYPE: ${{ inputs.owner-type }}
         run: |
           echo "🔍 Checking for existing package version: $TAG"
   
           PACKAGE_FULL="$PACKAGE_NAMESPACE.$PACKAGE_NAME"
   
-          API_BASE="https://api.github.com/${{ inputs.owner-type == 'org' && 'orgs' || 'users' }}/$GH_OWNER/packages/maven/$PACKAGE_FULL"
+          API_BASE="https://api.github.com/$OWNER_TYPE/$GH_OWNER/packages/maven/$PACKAGE_FULL"
   
           RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions")
 
@@ -262,12 +263,13 @@ jobs:
           TAG: ${{ github.ref_name }}
           PACKAGE_NAMESPACE: ${{ inputs.maven_group }}
           PACKAGE_NAME: domain
+          OWNER_TYPE: ${{ inputs.owner-type }}
         run: |
           echo "🔍 Checking for existing package version: $TAG"
   
           PACKAGE_FULL="$PACKAGE_NAMESPACE.$PACKAGE_NAME"
   
-          API_BASE="https://api.github.com/${{ inputs.owner-type == 'org' && 'orgs' || 'users' }}/$GH_OWNER/packages/maven/$PACKAGE_FULL"
+          API_BASE="https://api.github.com/$OWNER_TYPE/$GH_OWNER/packages/maven/$PACKAGE_FULL"
   
           RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions")
 
@@ -325,12 +327,13 @@ jobs:
           TAG: ${{ github.ref_name }}
           PACKAGE_NAMESPACE: ${{ inputs.maven_group }}
           PACKAGE_NAME: spring
+          OWNER_TYPE: ${{ inputs.owner-type }}
         run: |
           echo "🔍 Checking for existing package version: $TAG"
   
           PACKAGE_FULL="$PACKAGE_NAMESPACE.$PACKAGE_NAME"
   
-          API_BASE="https://api.github.com/${{ inputs.owner-type == 'org' && 'orgs' || 'users' }}/$GH_OWNER/packages/maven/$PACKAGE_FULL"
+          API_BASE="https://api.github.com/$OWNER_TYPE/$GH_OWNER/packages/maven/$PACKAGE_FULL"
   
           RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "$API_BASE/versions")
 
@@ -427,9 +430,10 @@ jobs:
           TOKEN: ${{ secrets.release_token }}
           IMAGE: ${{ env.IMAGE_NAME }}
           TAG: ${{ github.ref_name }}
+          OWNER_TYPE: ${{ inputs.owner-type }}
         run: |
           PKG=$(echo "$IMAGE" | awk -F'/' '{print tolower($NF)}')
-          API="https://api.github.com/orgs/$OWNER/packages/container/$PKG"
+          API="https://api.github.com/$OWNER_TYPE/$OWNER/packages/container/$PKG"
       
           LIST=$(curl -s -H "Authorization: Bearer $TOKEN" "$API/versions")
       
