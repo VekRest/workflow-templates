@@ -204,7 +204,7 @@ jobs:
 
           if echo "$RESPONSE" | jq -e 'has("message")' >/dev/null; then
               ERROR_MSG=$(echo "$RESPONSE" | jq -r '.message')
-              if [[ "$ERROR_MSG" == "Package not found." ]]; then
+              if [[ "$ERROR_MSG" == "Package not found." || "$ERROR_MSG" == "Not Found" ]]; then
                   echo "✔️ Package $PACKAGE_FULL does not exist. Nothing to delete."
                   exit 0
               else
